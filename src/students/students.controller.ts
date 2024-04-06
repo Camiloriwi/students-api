@@ -19,18 +19,23 @@ export class StudentsController {
         return await this.Service.create(body);
     }
 
+    // @Post('register')
+    // async register(@Body() body) {
+    //     const { name, email, password } = body;
+    //     const hashedPassword = await bcrypt.hash(password, 10);
+    //     const user = await this.Service.create({
+    //         name,
+    //         email,
+    //         password: hashedPassword,
+    //     });
+    //     return user;
+    // }
+
     @Post('register')
     async register(@Body() body) {
-        const { name, email, password } = body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await this.Service.create({
-            name,
-            email,
-            password: hashedPassword,
-        });
-        return user;
+      
+        return await this.Service.create(body);
     }
-
 
     @Post('login')
     async login(@Body() body) {
