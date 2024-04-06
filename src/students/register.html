@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            background-color: rgb(4, 1, 1);
+            color: blueviolet;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+        <h1>Register</h1>
+
+        <form action="http://localhost:3000/students/register" method="post">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control"  name="name">
+        
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control"  name="email">
+        
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control"  name="password">
+            
+            <input type="submit" value="Registrarme">
+        </form>
+        
+</body>
+</html>
