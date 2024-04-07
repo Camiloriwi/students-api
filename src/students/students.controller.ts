@@ -1,8 +1,5 @@
-import { Controller ,Get, Post, Body,  Put, Param,Delete, HttpException, HttpStatus} from '@nestjs/common';
+import { Controller ,Get, Post, Body,  Put, Param,Delete} from '@nestjs/common';
 import { StudentService } from './student.service';
-import * as bcrypt from 'bcrypt';
-// import * as jwt from 'jsonwebtoken';
-const jwt_secret ="###secret";
 
 @Controller('students')
 export class StudentsController {

@@ -9,30 +9,196 @@ comando para la estructura basica de nestjs:
 " nest new"
 comando para  poder todos los modulos de la libreria mongoose  y podernos connectar ala base de datos:
 " npm install --save @nestjs/mongoose mongoose  mongodb"
-
+para la autentificacion y jwt token :"npm install bcrypt jsonwebtoken passport passport-jwt",todos los comandos juntos "npm install --save @nestjs/common @nestjs/core reflect-metadata rxjs @nestjs/platform-express mongoose @nestjs/mongoose bcrypt jsonwebtoken"
 
 
 2. usar el comando en la terminal para crear  otra carpeta en la que vamos a trabajar usar los comandos:
 nest generate module, nest generate controller, nest generate services
 
 
-3. ahora dentro de esta misma  creamos un archivo con  el nombre opcional por ejemplo "shema.entity.ts"
+3. ahora dentro de esta misma  creamos un archivo con  el nombre opcional por ejemplo "schema.entity.ts"
 que es donde crearemos el schema  que vamos a utilizar
 
 
 4. lo que es el archivo main.ts solo lo usaremos si se requiere cambiar el puerto de ejecucion de lo contrario evitar modificarlos   lo mismo con los archivos  como app.controller.spect.ts, ejemplo.service.spect.ts , y ejemplo.controller.spect.ts
 
-5. si vamos a trabajar sobre los archivos que creamos con nest generate tampoco necesitamos modificar los archivos app.service.ts , app.controller.ts, y 
-
-6. en el archivo app.module.ts  es donde 
+5. si vamos a trabajar sobre los archivos de la carpeta nueva,  no es necesario  modificar los archivos app.service.ts , app.controller.ts,  que se crean con la estructura basica de nestjs
 
 
+6. en el archivo app.module.ts  es donde  crearemos nuestra connection con la base de datos  de mongodb atraves de mongoose ejemplo: 
+
+@Module({ imports: [MongooseModule.forRoot('mongodb+srv://camilo:nFgFrb0li3JxbLr6@node.ktvwioe.mongodb.net/'), StudentModule ],
+  controllers: [AppController], providers: [AppService]
+})
+export class AppModule {}
+
+7. ahora en el archivo estudent.entity.ts  declararemos el schema que utilizaremos  para crear nuestra collection y todos los campos que nesesitaremos ejemplo eschema basico:
+
+es nesesraio importar tambien todos los modulos  librerrias que utilizaremos en cadad secion del proyecto ejemplo: import{ Document } from 'mongoose'
+import { Schema,Prop,SchemaFactory } from "@nestjs/mongoose";
+@Schema()
+export class Students extends Document{
+    @Prop()
+    name: string; 
+    @Prop()
+    email:string;
+    @Prop()
+    password:string;
+}; export const StudentSchema = SchemaFactory.createForClass(Students);
 
 
+8. ahora en el archivo module de la nueva carpeta que creamos  aremos el llamado del schema que previamente creamos  en el archivo entity.ts  e importaremos los modulos de otras seciones y librerrias del proyecto ejemplo:
+
+@Module({ imports:[ MongooseModule.forFeature([{ name: Students.name, schema: StudentSchema } ]) ], controllers:[StudentsController], providers:[StudentService] });   export class StudentModule {}
 
 
+9.  ahora en el archivo services.ts  declararemos toda nuestra logica o metodos principales de nuestro proyecto de  en la secion injectable  declraremos la clase principal con todos los metodos y el construtor que es bastante necesario para que nos funcione corretamente nuestro programa ejemplo:
+
+@Injectable()
+export class StudentService { constructor(@InjectModel (Students.name) private studentModel: Model<Students>){} }
 
 
+10.  ahora despues de haber creado nuestros servicios solo los llamamos  ala secion  del archivo controller.ts  para poder utilizarlos en este archivo tambien es  necesaria la implementacion de otro constructor ejemplo:
+
+@Controller('students')//empoint principal de apirest que utilizaremos para consultas
+export class StudentsController { constructor(private readonly Service: StudentService){}; }
+
+
+11. ahora por ultimo utilizaremos los formularios html ya desde la parte frontend para la creacion o registro de usuarios manual con el method post  y tambien el login para la secion del jsonwebtoken y la autentificacion ademas del password encryptado 
+
+ejemplo formulario login :
+
+<form action="http://localhost:3000/students/login" method="post">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control"  name="email">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control"  name="password">
+        <input type="submit" value="Iniciar sesión">
+</form>
+
+FIN
+
+
+development
+
+ejemplo de algunos servicios principales que podemos utilizar 
+
+1. para retornar toda la informacionde la db:
+async findAll(){
+    return await this.studentModel.find().exec();
+}
+
+2. para encriptar las contraseñas del usuario y no dejar su informacion en riesgo
+async  encryptPassword(password: string): Promise<string> {
+    const saltOrRounds = 10;
+    const hash = await bcrypt.hash(password, saltOrRounds);
+    return hash;
+}
+
+3. para crear o registrar un nuevo usuario aqui tambien utylisamos el servicio anterior de encriptacion
+async create(@Body() body): Promise<Students> {
+    body.password = await this.encryptPassword(body.password);
+    const newStudent = new this.studentModel(body);
+    return await newStudent.save();
+}
+
+4. para validar si un correo electronico exista o esta registrado ya en nuestr base de datos :
+async findByEmail(email: string): Promise<Students> {
+    return await this.studentModel.findOne({ email: email }).exec();
+}
+
+5. para validar un usuario o permitirle logearse en nuestra aplicacion y que su informacion quede guardadad  ademas de esto se le otorga un token de entrada limitada aqui tambien utilizamos la funcion anterior :
+async validateUser(email: string, password: string) {
+    const user = await this.findByEmail(email);
+    if (!user) {
+        throw new HttpException('Invalid username or email', HttpStatus.BAD_REQUEST);
+    } 
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+        throw new HttpException('Invalid username or password', HttpStatus.BAD_REQUEST);
+    } 
+    const jwt_secret = 'tu_clave_secreta'; // Asegúrate de reemplazar esto con tu clave secreta
+    const token = jwt.sign({ userId: user._id }, jwt_secret, { expiresIn: '1h' });
+    return { message: 'Logged in successfully', token };
+}
+
+6. para editar o atualizar la informacion de algun usuario de nuestra base de datos previamente. registrado:
+async update(id:string, body){
+    return await this.studentModel.findByIdAndUpdate(id,body,{new:true}).exec();
+}
+
+7. para eliminar algun usuario de nuestra base de datos:    
+async delete(id:string){
+    return await this.studentModel.findByIdAndDelete(id).exec();
+}
+    
+ejemplos de la implementacion de los servicios previamente creados y que utilizaremos en nuestros controllers y de la clase StudentsController:
+
+1. Get nos retorna toda la informacion de nuestra db:
+@Get('/todo')
+findAllStudent(){
+    return this.Service.findAll();
+}
+
+2. post nos permite la creacion y el guardado de nuestros datos o usuarios que se esten registrando o creando:
+@Post('register')
+async register(@Body() body) {
+    return await this.Service.create(body);
+}
+
+3. post en este caso nos permite el inicio de secion de un usuario ya registrado
+@Post('login')
+async login(@Body() body) {
+    return this.Service.validateUser(body.email, body.password);
+}
+  
+4. put nos permite editar o modificar la informacion del usuario ascediendo a esta por su id unico:
+@Put('path/:_id')
+async updateStudent(@Param('_id') id, @Body() body){
+    return await this.Service.update(id, body);
+}
+
+5. Delete nos permite eliminar un usuario o cualquier informacion de nuestra base de datos:  
+@Delete('path/:_id')
+async deleteStudent(@Param('_id') id){
+    return await this.Service.delete(id);
+}
+    
+
+importacion de los modulos de las principales metodos y librerias que utilizaremos en nuestro programa     
+
+1. student.controller.ts:
+
+import { Controller ,Get, Post, Body,  Put, Param,Delete, HttpException, HttpStatus} from '@nestjs/common';
+import { StudentService } from './student.service';
+
+2. en el studen.services.ts:
+import { Injectable , Body, Param, HttpException, HttpStatus} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Students } from './student.entity';
+import { Model } from 'mongoose';
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
+
+3. en el archivo student.module.ts:
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Students, StudentSchema } from './student.entity';
+import {StudentsController} from './students.controller';
+import { StudentService } from './student.service';   
+
+
+4. en el eschema o archivo.entity.ts:
+import{ Document } from 'mongoose'
+import { Schema,Prop,SchemaFactory } from "@nestjs/mongoose";  
+
+
+5. en el app.module.ts:
+import { Module} from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { StudentModule } from './students/student.module';
 
 
 
