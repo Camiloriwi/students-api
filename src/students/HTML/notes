@@ -1,0 +1,40 @@
+
+
+Pasos para realizar un ejercicio realizando un ApiRest con los metodos CRUD en Nest.js 
+
+1. crear una carpeta global donde vamos a guardar el proyecto  luego abrir una terminal de bash o powershell
+
+1.1 despues de abrir la terminal  instalar los siguientes comandos en la terminal: " npm i -g @nestjs/cli",
+comando para la estructura basica de nestjs:
+" nest new"
+comando para  poder todos los modulos de la libreria mongoose  y podernos connectar ala base de datos:
+" npm install --save @nestjs/mongoose mongoose  mongodb"
+
+
+
+2. usar el comando en la terminal para crear  otra carpeta en la que vamos a trabajar usar los comandos:
+nest generate module, nest generate controller, nest generate services
+
+
+3. ahora dentro de esta misma  creamos un archivo con  el nombre opcional por ejemplo "shema.entity.ts"
+que es donde crearemos el schema  que vamos a utilizar
+
+
+4. lo que es el archivo main.ts solo lo usaremos si se requiere cambiar el puerto de ejecucion de lo contrario evitar modificarlos   lo mismo con los archivos  como app.controller.spect.ts, ejemplo.service.spect.ts , y ejemplo.controller.spect.ts
+
+5. si vamos a trabajar sobre los archivos que creamos con nest generate tampoco necesitamos modificar los archivos app.service.ts , app.controller.ts, y 
+
+6. en el archivo app.module.ts  es donde 
+
+
+
+
+
+
+
+
+
+
+
+
+
