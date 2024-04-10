@@ -43,7 +43,8 @@ export class StudentService {
           throw new HttpException('Invalid username or password', HttpStatus.BAD_REQUEST);
         }
     
-        const jwt_secret = 'tu_clave_secreta'; // Asegúrate de reemplazar esto con tu clave secreta
+        const jwt_secret = 'mi_clave_secreta'; 
+        
         const token = jwt.sign({ userId: user._id }, jwt_secret, { expiresIn: '1h' });
         return { message: 'Logged in successfully', token };
     }
