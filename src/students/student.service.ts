@@ -1,5 +1,5 @@
 
-import { Injectable , Body, Param, HttpException, HttpStatus} from '@nestjs/common';
+import { Injectable , Body, HttpException, HttpStatus} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Students } from './student.entity';
 import { Model } from 'mongoose';
